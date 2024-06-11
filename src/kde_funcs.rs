@@ -19,6 +19,7 @@ pub fn epanechnikov_kde<const N_DIM: usize>(
     points: ArrayView2<f64>,
     lamdaopt: ArrayView1<f64>,
     n_threads: usize,
+    n_chunk: usize,
 ) -> Array1<f64> {
     let x_shape = x.shape();
     let n_x: usize = x_shape[0];
@@ -30,7 +31,6 @@ pub fn epanechnikov_kde<const N_DIM: usize>(
     let mut rhos = Array1::<f64>::zeros(n_x);
     let lamdaopt2: Array1<f64> = lamdaopt.map(|&x| x * x);
     let inv_lamdaopt_pow: Array1<f64> = lamdaopt.map(|&x| x.powi(-(N_DIM as i32)));
-    let n_chunk: usize = std::cmp::max(std::cmp::min(n_x / n_threads, 50_000), 10_000);
 
     create_pool(n_threads).install(|| {
         x.axis_chunks_iter(Axis(0), n_chunk)
@@ -65,106 +65,46 @@ pub fn epanechnikov_kde<const N_DIM: usize>(
     rhos
 }
 
-/* pub fn epanechnikov_kde_3d_weights(
-    x: ArrayView2<f64>,
-    points: ArrayView2<f64>,
-    lamdaopt: ArrayView1<f64>,
-    n_threads: usize,
-    weights: ArrayView1<f64>,
-) -> Array1<f64> {
-    let x_shape = x.shape();
-    let n_x: usize = x_shape[0];
-    let n_dim: usize = x_shape[1];
-
-    let points_shape = points.shape();
-    let n_points: usize = points_shape[0];
-    let n_dim_points: usize = points_shape[1];
-
-    assert_eq!(n_dim, 3); //else ndarray to array3 is not allowed!
-    assert_eq!(n_dim_points, 3); //else ndarray to array3 is not allowed!
-                                 //
-    let mut rhos = Array1::<f64>::zeros(n_x);
-
-    let mut kdtree: float_KdTree<f64, usize, 3, 256, u32> = float_KdTree::with_capacity(n_points);
-    for (idx, jvec) in points.axis_iter(Axis(0)).enumerate() {
-        kdtree.add(ndarray_to_array3(jvec.to_slice().unwrap()), idx)
-    }
-
-    // Could chunk to seperate max distts!
-    let max_dist2: f64 = (lamdaopt.max().unwrap()).powi(2);
-
-    create_pool(n_threads).install(|| {
-        Zip::from(x.axis_iter(Axis(0)))
-            .and(&mut rhos)
-            .into_par_iter()
-            .for_each(|(x_row, rho)| {
-                let neighbours = kdtree.within_unsorted::<SquaredEuclidean>(
-                    ndarray_to_array3(x_row.to_slice().unwrap()),
-                    max_dist2,
-                );
-                for neigh in neighbours {
-                    let lamda = unsafe { *lamdaopt.uget(neigh.item) };
-                    let w = unsafe { *weights.uget(neigh.item) };
-                    let t_2 = neigh.distance / (lamda).powi(2);
-                    if t_2 < 1. {
-                        *rho += w * (1. - t_2) / (lamda.powi(n_dim as i32));
-                    }
-                }
-            });
-    });
-
-    let vd = PI.powf(n_dim as f64 / 2.) / gamma::gamma(n_dim as f64 / 2. + 1.);
-    let constant_factor = (n_dim as f64 + 2.) / (2. * vd);
-    // (1. / n_points as f64)
-    rhos *= constant_factor;
-    rhos
-}
-
-
-pub fn epanechnikov_kde_3d_rev_weights(
+pub fn epanechnikov_kde_weights<const N_DIM: usize>(
     x: ArrayView2<f64>,
     points: ArrayView2<f64>,
     lamdaopt: ArrayView1<f64>,
     weights: ArrayView1<f64>,
     n_threads: usize,
+    n_chunk: usize,
 ) -> Array1<f64> {
     let x_shape = x.shape();
     let n_x: usize = x_shape[0];
-    let n_dim: usize = x_shape[1];
-    let points_shape = points.shape();
-    // let n_points: usize = points_shape[0];
-    let n_dim_points: usize = points_shape[1];
-    assert_eq!(n_dim, 3); //else ndarray to array3 is not allowed!
-    assert_eq!(n_dim_points, 3); //else ndarray to array3 is not allowed!
+    let n_dim_x: usize = x_shape[1];
+    let n_dim_points: usize = points.shape()[1];
+    assert_eq!(n_dim_x, N_DIM);
+    assert_eq!(n_dim_points, N_DIM);
 
     let mut rhos = Array1::<f64>::zeros(n_x);
-    let lamdaopt_sigma2: Array1<f64> = lamdaopt.map(|&x| x * x);
-    let w_inv_lamdaopt_pow: Array1<f64> = lamdaopt.map(|&x| x.powi(-(n_dim as i32))) * weights;
-
-    let n_chunk: usize = std::cmp::max(std::cmp::min(n_x / n_threads, 50_000), 10_000);
+    let lamdaopt2: Array1<f64> = lamdaopt.map(|&x| x * x);
+    let w_inv_lamdaopt_pow: Array1<f64> = lamdaopt.map(|&x| x.powi(-(N_DIM as i32))) * weights;
 
     create_pool(n_threads).install(|| {
         x.axis_chunks_iter(Axis(0), n_chunk)
             .into_par_iter()
             .zip(rhos.axis_chunks_iter_mut(Axis(0), n_chunk))
             .for_each(|(x_small, mut rhos_small)| {
-                // let mut stars_kdtree: KdTree<f64, 3> = KdTree::with_capacity(n_chunk);
-                let mut stars_kdtree: float_KdTree<f64, usize, 3, 256, u32> =
+                let mut stars_kdtree: float_KdTree<f64, usize, N_DIM, 256, u32> =
                     float_KdTree::with_capacity(n_chunk);
                 for (idx, jvec) in x_small.axis_iter(Axis(0)).enumerate() {
-                    stars_kdtree.add(ndarray_to_array3(jvec.to_slice().unwrap()), idx)
+                    stars_kdtree.add(unsafe { &*(jvec.as_ptr() as *const [f64; N_DIM]) }, idx)
                 }
 
                 Zip::from(points.axis_iter(Axis(0)))
-                    .and(&lamdaopt_sigma2)
+                    .and(&lamdaopt2)
                     .and(&w_inv_lamdaopt_pow)
-                    .for_each(|p_row, lamda_s2, w_inv_lamda| {
+                    .for_each(|p_row, lamda2, w_inv_lamda| {
                         let neighbours = stars_kdtree.within_unsorted::<SquaredEuclidean>(
-                            ndarray_to_array3(p_row.to_slice().unwrap()),
-                            *lamda_s2,
+                            unsafe { &*(p_row.as_ptr() as *const [f64; N_DIM]) },
+                            *lamda2,
                         );
                         for neigh in neighbours {
-                            let t_2 = neigh.distance / lamda_s2;
+                            let t_2 = neigh.distance / lamda2;
                             rhos_small[neigh.item] += (1. - t_2) * w_inv_lamda;
                         }
                     });
@@ -172,12 +112,12 @@ pub fn epanechnikov_kde_3d_rev_weights(
     });
 
     //
-    let vd = PI.powf(n_dim as f64 / 2.) / gamma::gamma(n_dim as f64 / 2. + 1.);
-    rhos *= (n_dim as f64 + 2.) / (2. * vd); //can
-                                             // *(1. / n_points as f64)
+    let vd = PI.powf(N_DIM as f64 / 2.) / gamma::gamma(N_DIM as f64 / 2. + 1.);
+    rhos *= (N_DIM as f64 + 2.) / (2. * vd);
     rhos
 }
 
+/*
 pub fn epanechnikov_kde_3d_rev_weights_groups(
     x: ArrayView2<f64>,
     points: ArrayView2<f64>,
