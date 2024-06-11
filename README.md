@@ -8,13 +8,17 @@ Uses a fast KDtree (Kiddo) to estimate densities using epanechnikov kernels. Thi
 
 ## Install
 ### Simple (python)
-- pip install spyder_density
+- pip install spyders_density
 ### Develop (python)
 - clone the repository
 - pip install .
 ### Develop (rust)
 - clone the repository
 - rust, maturin ect...
+
+## Examples
+See ./example_notebooks/
+
 
 ## Issues
 Kiddo fails to create a tree if there are too many points with the same values https://github.com/sdd/kiddo/issues/78
