@@ -1,0 +1,22 @@
+[package]
+name = "spyders"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "spyders"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.21.1"
+kiddo = "4.2.0"
+rayon = "1.10.0"
+spfunc = "0.1.0"
+numpy = "0.21.0"
+ndarray = { version = "0.15.6", features = ["rayon"] }
+blas-src = "0.10.0"
+ndarray-parallel = "0.9.1"
+ndarray-stats = "0.5.1"
+ndarray-linalg = "0.16.0"
+itertools = "0.13.0"
