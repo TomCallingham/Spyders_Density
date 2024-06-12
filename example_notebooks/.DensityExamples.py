@@ -25,12 +25,12 @@ from sklearn.neighbors import KernelDensity
 from scipy.stats import gaussian_kde
 
 # %%
-n_dim = 3
+n_dim = 2
 n_total = int(2e5)
+n_cores = 5
 
 # %%
-np.random.seed(0)
-n_cores = 10
+np.random.seed(42)
 data_core = np.random.normal(loc=0, scale=2, size=(n_cores, n_dim))
 indexes_cores= np.zeros(n_cores+1,dtype=int)
 indexes_cores[1:]= np.sort(np.random.randint(0,n_total,size=n_cores))
@@ -43,6 +43,7 @@ for i in range(n_cores):
 
 # %% [markdown]
 # ## Epanechnikov
+# Just using the Epanechnikov, need to specify points and the smoothing window lambdaopt.
 
 # %%
 from spyders import epanechnikov_kde
@@ -58,6 +59,35 @@ dens = epanechnikov_kde(data,data,lambdaopt, n_threads=8)
 # %%
 plt.figure(figsize=(8, 6))
 plt.scatter(data[:, 0], data[:, 1], c=dens,edgecolor="none",s=5)
+for i in range(n_cores):
+    plt.scatter(data_core[i, 0], data_core[i, 1])
+plt.title('Scatter Plot of Synthetic Data')
+plt.xlabel('X Coordinate')
+plt.ylabel('Y Coordinate')
+plt.grid(True)
+plt.show()
+
+# %%
+n = 100  # Number of points along each axis
+# # Generate grid points
+x = np.linspace(-8, 8, n)
+xx = np.tile(x,n)
+yy = np.repeat(x,n)
+
+# Note that without copy, the density fails.
+#Due to numpy trying to be memory clever? Whereas rust assumes arrays are arrays in memory.
+grid_points = np.vstack([xx,yy]).T.copy()
+
+# %%
+# May need to add small numerical deviations from grid
+grid_points+= np.random.normal(0,0.00001,size=(n**2,n_dim))
+
+# %%
+grid_dens = epanechnikov_kde(grid_points,data,lambdaopt=lambdaopt).reshape(n,n)
+
+# %%
+plt.figure(figsize=(8, 6))
+plt.pcolor(x,x, grid_dens)
 for i in range(n_cores):
     plt.scatter(data_core[i, 0], data_core[i, 1])
 plt.title('Scatter Plot of Synthetic Data')
@@ -90,6 +120,7 @@ plt.show()
 
 # %% [markdown]
 # ## MBE
+# The MBE  provides a way to estimate
 
 # %%
 from spyders import MBEdens
@@ -141,5 +172,7 @@ for i in range(n_cores):
     plt.xlabel("lambda")
 plt.legend()
 plt.show()
+
+# %%
 
 # %%

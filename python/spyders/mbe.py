@@ -12,7 +12,7 @@ class MBEdens:
     ----
     X [N,n_dim]: Points to evaluate density at.
     weights [N] (optional): The weighting of each background point.
-    n_iter (optional,5): Iterations to find smoothing windows.
+    n_iter (optional,1): Iterations to find smoothing windows.
     p_window (optional,20): percentage window to find scaling.
     n_threads (optional,20): Number of threads to use.
     verbose (optional): Print iteration loops.
@@ -22,7 +22,7 @@ class MBEdens:
         self,
         X: np.ndarray,
         weights: np.ndarray | None = None,
-        n_iter: int = 5,
+        n_iter: int = 1,
         p_window: float = 20,
         sigma_type="min",
         n_threads: int = 20,
