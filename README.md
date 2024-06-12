@@ -1,10 +1,17 @@
 # Spyders: 
 Simple PYthon Density Estimator using RuSt
 
-First Rust project, first public python project. Feedback welcome!
 
 ## Description
-Uses a fast KDtree (Kiddo) to estimate densities using epanechnikov kernels. This implementation builds a KDtree from the evaluated points, rather than the underlying density points. This allows each underlying density point to have a different smoothing length.
+Uses a fast KDtree ([Kiddo](https://github.com/sdd/kiddo)) to estimate densities using epanechnikov kernels, with individual smoothing lengths. This implementation builds a KDtree from the evaluated points, rather than the underlying density points. 
+
+Current code works for 2<=n_dim<=7, but should be simple to extend to higher ndims if needed.
+
+This project was made to fill a niche. The performance is better than other examples I found, entirely due to Kiddo. Room for improvement.
+
+Mainly tested for ndim=3.
+
+First Rust project, first public python project. Feedback welcome!
 
 ## Install
 ### Simple (python)
@@ -19,6 +26,5 @@ Uses a fast KDtree (Kiddo) to estimate densities using epanechnikov kernels. Thi
 ## Examples
 See ./example_notebooks/
 
-
 ## Issues
-Kiddo fails to create a tree if there are too many points with the same values https://github.com/sdd/kiddo/issues/78
+Kiddo fails to create a tree if there are too many points with the same values (https://github.com/sdd/kiddo/issues/78). No in-built workaround as of yet. In some cases this can be mitigated by adding small numerical noise to data first.
