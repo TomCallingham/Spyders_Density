@@ -27,4 +27,5 @@ First Rust project, first public python project. Feedback welcome!
 See ./example_notebooks/
 
 ## Issues
-Kiddo fails to create a tree if there are too many points with the same values (https://github.com/sdd/kiddo/issues/78). No in-built workaround as of yet. In some cases this can be mitigated by adding small numerical noise to data first.
+- Kiddo fails to create a tree if there are too many points with the same values (https://github.com/sdd/kiddo/issues/78). No in-built workaround as of yet. In some cases this can be mitigated by adding small numerical noise to data first.
+- Sometimes, numpy arrays are actually viewed into different memory layouts. This can cause some problems when passed into the rust code. An example of this can be seen in the example notebooks, where the test grid generated must be explicitly copied to force numpy to have the true array in memory. Not my area, but a theory!
