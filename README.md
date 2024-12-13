@@ -5,11 +5,11 @@ Simple PYthon Density Estimator using RuSt
 ## Description
 Uses a fast KDtree ([Kiddo](https://github.com/sdd/kiddo)) to estimate densities using epanechnikov kernels, with individual smoothing lengths. This implementation builds a KDtree from the evaluated points, rather than the underlying density points. 
 
-Current code works for 2<=n_dim<=7, but should be simple to extend to higher ndims if needed.
+Python functions for a epanechnikov kde, and an implementation of a Modified Breiman Density Estimator (based on https://ui.adsabs.harvard.edu/abs/2011A%26A...531A.114F/abstract).
 
-This project was made to fill a niche. The performance is better than other examples I found, entirely due to Kiddo. Room for improvement.
+The current code works for 2<=n_dim<=7, but it should be simple to extend to higher ndims if needed.
 
-Mainly tested for ndim=3.
+This project was made to fill a niche. The performance is better than other examples I found, entirely due to Kiddo. Room for improvement. Mainly tested for ndim=3.
 
 First Rust project, first public python project. Feedback welcome!
 
@@ -27,4 +27,5 @@ First Rust project, first public python project. Feedback welcome!
 See ./example_notebooks/
 
 ## Issues
-Kiddo fails to create a tree if there are too many points with the same values (https://github.com/sdd/kiddo/issues/78). No in-built workaround as of yet. In some cases this can be mitigated by adding small numerical noise to data first.
+- Kiddo fails to create a tree if there are too many points with the same values (https://github.com/sdd/kiddo/issues/78). No in-built workaround as of yet. In some cases this can be mitigated by adding small numerical noise to data first.
+- Sometimes, numpy arrays are actually viewed into different memory layouts. This can cause some problems when passed into the rust code. An example of this can be seen in the example notebooks, where the test grid generated must be explicitly copied to force numpy to have the true array in memory. Not my area, but a theory!
