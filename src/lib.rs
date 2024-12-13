@@ -27,7 +27,7 @@ fn epanechnikov_kde_py<'py>(
         7 => kde_funcs::epanechnikov_kde::<7>(x, points, lamdaopt, n_threads, n_chunk),
         _ => panic!("Unsupported dimension: {}", n_dim),
     };
-    res.to_pyarray_bound(py)
+    res.to_pyarray(py)
 }
 
 #[pyfunction]
@@ -70,7 +70,7 @@ fn epanechnikov_kde_weights_py<'py>(
         ),
         _ => panic!("Unsupported dimension: {}", n_dim),
     };
-    res.to_pyarray_bound(py)
+    res.to_pyarray(py)
 }
 
 #[pyfunction]
@@ -92,29 +92,29 @@ fn epanechnikov_kde_groups_py<'py>(
     let n_dim: usize = x.shape()[1];
     let res = match n_dim {
         1 => kde_funcs::epanechnikov_kde_groups::<1>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         2 => kde_funcs::epanechnikov_kde_groups::<2>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         3 => kde_funcs::epanechnikov_kde_groups::<3>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         4 => kde_funcs::epanechnikov_kde_groups::<4>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         5 => kde_funcs::epanechnikov_kde_groups::<5>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         6 => kde_funcs::epanechnikov_kde_groups::<6>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         7 => kde_funcs::epanechnikov_kde_groups::<7>(
-            x, points, lamdaopt,  group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, group_inds, n_groups, n_threads, n_chunk,
         ),
         _ => panic!("Unsupported dimension: {}", n_dim),
     };
-    res.to_pyarray_bound(py)
+    res.to_pyarray(py)
 }
 
 #[pyfunction]
@@ -138,29 +138,29 @@ fn epanechnikov_kde_weights_groups_py<'py>(
     let n_dim: usize = x.shape()[1];
     let res = match n_dim {
         1 => kde_funcs::epanechnikov_kde_weights_groups::<1>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         2 => kde_funcs::epanechnikov_kde_weights_groups::<2>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         3 => kde_funcs::epanechnikov_kde_weights_groups::<3>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         4 => kde_funcs::epanechnikov_kde_weights_groups::<4>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         5 => kde_funcs::epanechnikov_kde_weights_groups::<5>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         6 => kde_funcs::epanechnikov_kde_weights_groups::<6>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         7 => kde_funcs::epanechnikov_kde_weights_groups::<7>(
-            x, points, lamdaopt, weights, group_inds,n_groups,n_threads, n_chunk,
+            x, points, lamdaopt, weights, group_inds, n_groups, n_threads, n_chunk,
         ),
         _ => panic!("Unsupported dimension: {}", n_dim),
     };
-    res.to_pyarray_bound(py)
+    res.to_pyarray(py)
 }
 
 #[pymodule]

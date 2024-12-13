@@ -21,8 +21,6 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.neighbors import KernelDensity
-from scipy.stats import gaussian_kde
 
 # %%
 n_dim = 2
@@ -68,9 +66,9 @@ plt.grid(True)
 plt.show()
 
 # %%
-n = 100  # Number of points along each axis
+n = 200  # Number of points along each axis
 # # Generate grid points
-x = np.linspace(-8, 8, n)
+x = np.linspace(-7, 7, n)
 xx = np.tile(x,n)
 yy = np.repeat(x,n)
 
@@ -80,7 +78,7 @@ grid_points = np.vstack([xx,yy]).T.copy()
 
 # %%
 # May need to add small numerical deviations from grid
-grid_points+= np.random.normal(0,0.00001,size=(n**2,n_dim))
+grid_points+= np.random.normal(0,0.00001,size=(n**2,2))
 
 # %%
 grid_dens = epanechnikov_kde(grid_points,data,lambdaopt=lambdaopt).reshape(n,n)

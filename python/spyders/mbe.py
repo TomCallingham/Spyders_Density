@@ -52,7 +52,13 @@ class MBEdens:
             self.weights = weights.astype(np.float64)
 
     def calc_lambdaopt(self) -> None:
-        self.lambdaopt = np.ones(self.n_points, dtype=float)
+        from sklearn.neighbors import KDTree
+
+        k = 60
+        d = KDTree(self.points).query(self.points, k)[0][:, -1]
+        # self.lambdaopt = np.ones(self.n_points, dtype=float)
+        self.lambdaopt = d / self.sigmaopt
+        print(f"k {k} neighbors init!")
         if self.verbose:
             print(f"Iterating {self.n_iter} to find density params")
         for i in range(self.n_iter):
